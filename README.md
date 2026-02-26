@@ -27,7 +27,7 @@ The tool uses **Monte Carlo simulations** to quantify uncertainty and provides c
 
 ### Option 1: Run the Executable
 1. Download the latest release:  
-   [**Download RENEWS.exe**](#)  
+   [**Download Latest Version (Windows)**](https://github.com/s-marandi/RENEWS-A-Graphical-User-Interface-Program-for-Nuclear-Power-Industry-Projection/releases/latest/download/GUI.exe)  
 2. Double-click the `.exe` file to launch the program.  
 3. Load the provided sample datasets or create your own input files.  
 
