@@ -1,6 +1,8 @@
 # RENEWS
 
 **Reactor Expansion & Nuclear Employment Workforce Simulator**  
+by:
+Saman Marandi, Kaveh Faraji, Michelle T Bensi, Mohammad Modarres
 
 ---
 
