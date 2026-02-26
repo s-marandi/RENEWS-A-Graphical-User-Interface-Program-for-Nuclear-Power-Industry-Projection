@@ -191,6 +191,7 @@ def vectorized_full_simulate_reactor_growth(reactor_types, reactor_parameters, s
     return scaled_values_array, deployed_reactors, deployments_per_type
 
 
+
 class ReactorGUI:
 
     def __init__(self, root):
@@ -215,7 +216,27 @@ class ReactorGUI:
         # Predefined reactor types and capacities
         # Initialize predefined reactor types and capacities
         self.reactor_types = ["XE-100", "Natrium", "KP-FHR", "Em2", "Holtec SMR160", "Aurora", "VOYGR"]
-        self.capacities_mw = [80, 345, 140, 265, 160, 50, 77]  # Capacities in MW
+        self.capacities_mw = [80, 345, 140, 265, 160, 75, 77]  # Capacities in MW
+
+        self.reactor_type_to_category = {
+            "XE-100": "High-Temperature Gas-Cooled Reactor",
+            "Natrium": "Sodium-Cooled Fast Reactor",
+            "KP-FHR": "Fluoride-Salt-Cooled High-Temperature Reactor",
+            "Em2": "Gas-Cooled Fast Reactor",
+            "Holtec SMR160": "Pressurized Water Reactor",
+            "Aurora": "Fast Microreactor",
+            "VOYGR": "Light Water Reactor"
+        }
+
+        self.predefined_categories = [
+            "High-Temperature Gas-Cooled Reactor",
+            "Sodium-Cooled Fast Reactor",
+            "Fluoride-Salt-Cooled High-Temperature Reactor",
+            "Gas-Cooled Fast Reactor",
+            "Pressurized Water Reactor",
+            "Fast Microreactor",
+            "Light Water Reactor"
+        ]
 
         # Initialize instance variables for user-added data
         self.reactors = []
@@ -303,23 +324,23 @@ class ReactorGUI:
 
         # --- File selection and license extension section ---
         ttk.Label(self.current_reactors_frame, text="Current Reactors Excel File:").grid(
-            column=0, row=0, columnspan=4, padx=5, pady=5, sticky="w"
+            column=0, row=0, columnspan=4, padx=5, pady=5, sticky="nsew"
         )
         self.current_reactors_path_var = StringVar()
         self.current_reactors_path_entry = ttk.Entry(
             self.current_reactors_frame, width=50, textvariable=self.current_reactors_path_var
         )
-        self.current_reactors_path_entry.grid(column=0, row=1, columnspan=3, padx=5, pady=5, sticky="ew")
+        self.current_reactors_path_entry.grid(column=0, row=1, columnspan=3, padx=5, pady=5, sticky="nsew")
         self.browse_button = ttk.Button(
             self.current_reactors_frame, text="Browse", command=self.browse_file, width=20
         )
-        self.browse_button.grid(column=3, row=1, padx=5, pady=5, sticky="e")
+        self.browse_button.grid(column=3, row=1, padx=5, pady=5, sticky="nsew")
 
         ttk.Label(self.current_reactors_frame, text="License Extension Options:").grid(
-            column=0, row=2, columnspan=4, padx=5, pady=(10, 5), sticky="w"
+            column=0, row=2, columnspan=4, padx=5, pady=(10, 5), sticky="nsew"
         )
         extension_frame = ttk.Frame(self.current_reactors_frame)
-        extension_frame.grid(column=0, row=3, columnspan=4, padx=5, pady=5, sticky="ew")
+        extension_frame.grid(column=0, row=3, columnspan=4, padx=5, pady=5, sticky="nsew")
         for i in range(4):
             extension_frame.columnconfigure(i, weight=1)
 
@@ -330,85 +351,85 @@ class ReactorGUI:
             extension_frame, text="No Renewal", variable=self.license_extension_var,
             value="no_renewal", command=self.toggle_extension_entry
         )
-        self.no_renewal_radio.grid(column=0, row=0, padx=5, pady=5, sticky="w")
+        self.no_renewal_radio.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
         # Custom Extension option
         self.custom_year_radio = ttk.Radiobutton(
             extension_frame, text="Custom Years", variable=self.license_extension_var,
             value="custom", command=self.toggle_extension_entry
         )
-        self.custom_year_radio.grid(column=1, row=0, padx=5, pady=5, sticky="w")
+        self.custom_year_radio.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
 
         # Entry field for custom years
-        ttk.Label(extension_frame, text="Number of Years to Extend:").grid(column=2, row=0, padx=5, pady=5, sticky="e")
+        ttk.Label(extension_frame, text="Number of Years to Extend:").grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         self.custom_extension_years = IntVar(value=80)
         self.custom_extension_entry = ttk.Entry(extension_frame, width=10, textvariable=self.custom_extension_years)
-        self.custom_extension_entry.grid(column=3, row=0, padx=5, pady=5, sticky="w")
+        self.custom_extension_entry.grid(column=3, row=0, padx=5, pady=5, sticky="nsew")
         self.custom_extension_entry.config(state="disabled")  # disabled by default
 
         # --- Extend Percentage of Eligible Reactors ---
         ttk.Label(self.current_reactors_frame, text="Extend Percentage of Eligible Reactors:").grid(
-            column=0, row=5, padx=5, pady=5, sticky="w"
+            column=0, row=5, padx=5, pady=5, sticky="nsew"
         )
         self.extension_percentage_var = DoubleVar(value=100)
         self.extension_percentage_entry = ttk.Entry(
             self.current_reactors_frame, width=10, textvariable=self.extension_percentage_var
         )
-        self.extension_percentage_entry.grid(column=1, row=5, padx=5, pady=5, sticky="w")
+        self.extension_percentage_entry.grid(column=1, row=5, padx=5, pady=5, sticky="nsew")
 
         # --- Buttons ---
         button_frame = ttk.Frame(self.current_reactors_frame)
-        button_frame.grid(column=0, row=6, columnspan=4, padx=10, pady=10, sticky="ew")
+        button_frame.grid(column=0, row=6, columnspan=4, padx=10, pady=10, sticky="nsew")
         button_frame.columnconfigure(0, weight=1)
         button_frame.columnconfigure(1, weight=1)
         self.apply_license_extension_button = ttk.Button(
             button_frame, text="Apply License Extension", command=self.handle_selection, width=30
         )
-        self.apply_license_extension_button.grid(column=0, row=0, padx=10, pady=10, sticky="ew")
+        self.apply_license_extension_button.grid(column=0, row=0, padx=10, pady=10, sticky="nsew")
         self.calculate_capacity_button = ttk.Button(
             button_frame, text="Calculate and Load Current Reactor Capacities",
             command=self.trigger_capacity_calculation, width=40
         )
-        self.calculate_capacity_button.grid(column=1, row=0, padx=10, pady=10, sticky="ew")
+        self.calculate_capacity_button.grid(column=1, row=0, padx=10, pady=10, sticky="nsew")
 
         # --- Reactor Info Frame ---
         reactor_info_frame = ttk.LabelFrame(
             self.current_reactors_frame, text="Current Reactor Count", padding=(10, 10)
         )
-        reactor_info_frame.grid(column=0, row=7, columnspan=4, padx=5, pady=5, sticky="ew")
-        ttk.Label(reactor_info_frame, text="Current Reactors:").grid(column=0, row=0, padx=5, pady=5, sticky="w")
+        reactor_info_frame.grid(column=0, row=7, columnspan=4, padx=5, pady=5, sticky="nsew")
+        ttk.Label(reactor_info_frame, text="Current Reactors:").grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         self.total_reactors_label = ttk.Label(reactor_info_frame, text="0")
-        self.total_reactors_label.grid(column=1, row=0, padx=5, pady=5, sticky="ew")
+        self.total_reactors_label.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         ttk.Label(reactor_info_frame, text="Current Reactors with Extended Licenses:").grid(
-            column=2, row=0, padx=5, pady=5, sticky="ew"
+            column=2, row=0, padx=5, pady=5, sticky="nsew"
         )
         self.extended_reactors_label = ttk.Label(reactor_info_frame, text="0")
-        self.extended_reactors_label.grid(column=3, row=0, padx=5, pady=5, sticky="w")
+        self.extended_reactors_label.grid(column=3, row=0, padx=5, pady=5, sticky="nsew")
 
         # --- Capacity Display ---
         ttk.Label(self.current_reactors_frame, text="Current Reactors Capacity:", font=("Arial", 10, "bold")).grid(
-            column=0, row=8, columnspan=4, padx=5, pady=5, sticky="w"
+            column=0, row=8, columnspan=4, padx=5, pady=5, sticky="nsew"
         )
         self.results_text = tk.Text(self.current_reactors_frame, height=10, width=20)
-        self.results_text.grid(row=9, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
+        self.results_text.grid(row=9, column=0, columnspan=4, padx=5, pady=5, sticky="nsew")
         self.results_text.config(state='disabled')
         self.scrollbar = ttk.Scrollbar(self.current_reactors_frame, command=self.results_text.yview)
-        self.scrollbar.grid(row=9, column=4, sticky='ns')
+        self.scrollbar.grid(row=9, column=4, sticky='nsew')
         self.results_text['yscrollcommand'] = self.scrollbar.set
 
         # --- Plot Buttons ---
         plot_button_frame = ttk.Frame(self.current_reactors_frame)
-        plot_button_frame.grid(column=0, row=10, columnspan=4, padx=5, pady=10, sticky="ew")
+        plot_button_frame.grid(column=0, row=10, columnspan=4, padx=5, pady=10, sticky="nsew")
         for i in range(3):
             plot_button_frame.columnconfigure(i, weight=1)
         self.plot_current_capacity_button = ttk.Button(
             plot_button_frame, text="Plot Current Reactor Capacity", command=self.plot_current_capacity
         )
-        self.plot_current_capacity_button.grid(column=0, row=0, padx=5, pady=5, sticky="ew")
+        self.plot_current_capacity_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         self.plot_total_projection_button = ttk.Button(
             plot_button_frame, text="Plot Total Capacity Projection", command=self.plot_total_projection
         )
-        self.plot_total_projection_button.grid(column=1, row=0, padx=5, pady=5, sticky="ew")
+        self.plot_total_projection_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
 
         style = ttk.Style()
         style.configure("FuelDemand.TButton", font=("Helvetica", 10, "bold"), foreground="blue", padding=6)
@@ -416,32 +437,32 @@ class ReactorGUI:
             plot_button_frame, text="Fuel Cycle Demand >", command=self.open_fuel_cycle_window,
             style="FuelDemand.TButton"
         )
-        self.fuel_cycle_button.grid(column=2, row=0, padx=5, pady=5, sticky="ew")
+        self.fuel_cycle_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
 
         # --- Workforce Factors Section (Current Workforce) ---
         ttk.Label(self.current_reactors_frame, text="Current Reactor Workforce Factors").grid(
-            column=0, row=11, columnspan=4, padx=5, pady=5, sticky="w"
+            column=0, row=11, columnspan=4, padx=5, pady=5, sticky="nsew"
         )
         ttk.Label(self.current_reactors_frame, text="Current Workforce Distribution:").grid(
-            column=0, row=12, padx=5, pady=5, sticky="w"
+            column=0, row=12, padx=5, pady=5, sticky="nsew"
         )
         self.current_workforce_dist_var = StringVar(value="Uniform")
         self.current_workforce_dist_combobox = ttk.Combobox(
             self.current_reactors_frame, textvariable=self.current_workforce_dist_var,
             values=["Uniform", "Normal"], state="readonly", width=15
         )
-        self.current_workforce_dist_combobox.grid(column=1, row=12, padx=5, pady=5, sticky="ew")
+        self.current_workforce_dist_combobox.grid(column=1, row=12, padx=5, pady=5, sticky="nsew")
         self.current_workforce_dist_combobox.bind("<<ComboboxSelected>>", self.on_current_workforce_dist_change)
 
         # Uniform fields for current workforce (initially visible)
         self.current_workforce_uniform_lower_label = ttk.Label(self.current_reactors_frame, text="Low (jobs/GW):")
-        self.current_workforce_uniform_lower_label.grid(column=0, row=13, padx=5, pady=5, sticky="w")
+        self.current_workforce_uniform_lower_label.grid(column=0, row=13, padx=5, pady=5, sticky="nsew")
         self.current_workforce_uniform_lower_var = DoubleVar(value=200)
         self.current_workforce_uniform_lower_entry = ttk.Entry(self.current_reactors_frame, width=10,
                                                                textvariable=self.current_workforce_uniform_lower_var)
-        self.current_workforce_uniform_lower_entry.grid(column=1, row=13, padx=5, pady=5, sticky="ew")
+        self.current_workforce_uniform_lower_entry.grid(column=1, row=13, padx=5, pady=5, sticky="nsew")
         self.current_workforce_uniform_upper_label = ttk.Label(self.current_reactors_frame, text="High (jobs/GW):")
-        self.current_workforce_uniform_upper_label.grid(column=2, row=13, padx=5, pady=5, sticky="w")
+        self.current_workforce_uniform_upper_label.grid(column=2, row=13, padx=5, pady=5, sticky="nsew")
         self.current_workforce_uniform_upper_var = DoubleVar(value=300)
         self.current_workforce_uniform_upper_entry = ttk.Entry(self.current_reactors_frame, width=10,
                                                                textvariable=self.current_workforce_uniform_upper_var)
@@ -459,28 +480,28 @@ class ReactorGUI:
 
         # --- Workforce Factors Section (Future Workforce) ---
         ttk.Label(self.current_reactors_frame, text="Future Reactor Workforce Factors").grid(
-            column=0, row=14, columnspan=4, padx=5, pady=5, sticky="w"
+            column=0, row=14, columnspan=4, padx=5, pady=5, sticky="nsew"
         )
         ttk.Label(self.current_reactors_frame, text="Future Workforce Distribution:").grid(
-            column=0, row=15, padx=5, pady=5, sticky="w"
+            column=0, row=15, padx=5, pady=5, sticky="nsew"
         )
         self.future_workforce_dist_var = StringVar(value="Uniform")
         self.future_workforce_dist_combobox = ttk.Combobox(
             self.current_reactors_frame, textvariable=self.future_workforce_dist_var,
             values=["Uniform", "Normal"], state="readonly", width=15
         )
-        self.future_workforce_dist_combobox.grid(column=1, row=15, padx=5, pady=5, sticky="ew")
+        self.future_workforce_dist_combobox.grid(column=1, row=15, padx=5, pady=5, sticky="nsew")
         self.future_workforce_dist_combobox.bind("<<ComboboxSelected>>", self.on_future_workforce_dist_change)
 
         # Uniform fields for future workforce
         self.future_workforce_uniform_lower_label = ttk.Label(self.current_reactors_frame, text="Low (jobs/GW):")
-        self.future_workforce_uniform_lower_label.grid(column=0, row=16, padx=5, pady=5, sticky="w")
+        self.future_workforce_uniform_lower_label.grid(column=0, row=16, padx=5, pady=5, sticky="nsew")
         self.future_workforce_uniform_lower_var = DoubleVar(value=200)
         self.future_workforce_uniform_lower_entry = ttk.Entry(self.current_reactors_frame, width=10,
                                                               textvariable=self.future_workforce_uniform_lower_var)
-        self.future_workforce_uniform_lower_entry.grid(column=1, row=16, padx=5, pady=5, sticky="ew")
+        self.future_workforce_uniform_lower_entry.grid(column=1, row=16, padx=5, pady=5, sticky="nsew")
         self.future_workforce_uniform_upper_label = ttk.Label(self.current_reactors_frame, text="High (jobs/GW):")
-        self.future_workforce_uniform_upper_label.grid(column=2, row=16, padx=5, pady=5, sticky="w")
+        self.future_workforce_uniform_upper_label.grid(column=2, row=16, padx=5, pady=5, sticky="nsew")
         self.future_workforce_uniform_upper_var = DoubleVar(value=300)
         self.future_workforce_uniform_upper_entry = ttk.Entry(self.current_reactors_frame, width=10,
                                                               textvariable=self.future_workforce_uniform_upper_var)
@@ -498,13 +519,13 @@ class ReactorGUI:
 
         # --- Job Demand Buttons Section ---
         workforce_button_frame = ttk.Frame(self.current_reactors_frame)
-        workforce_button_frame.grid(column=0, row=17, columnspan=4, padx=5, pady=10, sticky="ew")
+        workforce_button_frame.grid(column=0, row=17, columnspan=4, padx=5, pady=10, sticky="nsew")
         workforce_button_frame.columnconfigure(0, weight=1)
         workforce_button_frame.columnconfigure(1, weight=1)
         self.plot_workforce_needs_button = ttk.Button(
             workforce_button_frame, text="Calculate Job Needs", command=self.plot_workforce_needs
         )
-        self.plot_workforce_needs_button.grid(column=0, row=0, padx=5, pady=5, sticky="ew")
+        self.plot_workforce_needs_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         # Define a new style for the Breakdown Jobs button
         style = ttk.Style()
         style.configure("JobBreakdown.TButton",
@@ -519,12 +540,19 @@ class ReactorGUI:
             command=self.open_breakdown_jobs_window,
             style="JobBreakdown.TButton"
         )
-        self.breakdown_jobs_button.grid(column=1, row=0, padx=5, pady=5, sticky="ew")
+        self.breakdown_jobs_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
 
     def open_fuel_cycle_window(self):
-        FuelCycleWindow(self.root, self.selected_demand_level,
-                        self.current_total_capacities, self.future_capacities_cum,self.num_simulations_var.get()  # <-- pass number of simulations
-)
+        FuelCycleWindow(
+            self.root,
+            self.selected_demand_level,
+            self.current_total_capacities,
+            getattr(self, 'future_capacities_cum', {}),  # default to empty dict
+            self.num_simulations_var.get(),
+            getattr(self, 'future_capacity_by_type_cumulative', {})  # default to empty dict
+        )
+
+    # <-- pass number of simulations
 
     def on_current_workforce_dist_change(self, event=None):
         dist = self.current_workforce_dist_var.get()
@@ -545,10 +573,10 @@ class ReactorGUI:
             self.current_workforce_uniform_upper_label.grid_remove()
             self.current_workforce_uniform_upper_entry.grid_remove()
             # Place normal fields in the same grid row (row 13)
-            self.current_workforce_normal_mean_label.grid(column=0, row=13, padx=5, pady=5, sticky="w")
-            self.current_workforce_normal_mean_entry.grid(column=1, row=13, padx=5, pady=5, sticky="ew")
-            self.current_workforce_normal_cv_label.grid(column=2, row=13, padx=5, pady=5, sticky="w")
-            self.current_workforce_normal_cv_entry.grid(column=3, row=13, padx=5, pady=5, sticky="ew")
+            self.current_workforce_normal_mean_label.grid(column=0, row=13, padx=5, pady=5, sticky="nsew")
+            self.current_workforce_normal_mean_entry.grid(column=1, row=13, padx=5, pady=5, sticky="nsew")
+            self.current_workforce_normal_cv_label.grid(column=2, row=13, padx=5, pady=5, sticky="nsew")
+            self.current_workforce_normal_cv_entry.grid(column=3, row=13, padx=5, pady=5, sticky="nsew")
 
     def on_future_workforce_dist_change(self, event=None):
         dist = self.future_workforce_dist_var.get()
@@ -566,10 +594,10 @@ class ReactorGUI:
             self.future_workforce_uniform_lower_entry.grid_remove()
             self.future_workforce_uniform_upper_label.grid_remove()
             self.future_workforce_uniform_upper_entry.grid_remove()
-            self.future_workforce_normal_mean_label.grid(column=0, row=16, padx=5, pady=5, sticky="w")
-            self.future_workforce_normal_mean_entry.grid(column=1, row=16, padx=5, pady=5, sticky="ew")
-            self.future_workforce_normal_cv_label.grid(column=2, row=16, padx=5, pady=5, sticky="w")
-            self.future_workforce_normal_cv_entry.grid(column=3, row=16, padx=5, pady=5, sticky="ew")
+            self.future_workforce_normal_mean_label.grid(column=0, row=16, padx=5, pady=5, sticky="nsew")
+            self.future_workforce_normal_mean_entry.grid(column=1, row=16, padx=5, pady=5, sticky="nsew")
+            self.future_workforce_normal_cv_label.grid(column=2, row=16, padx=5, pady=5, sticky="nsew")
+            self.future_workforce_normal_cv_entry.grid(column=3, row=16, padx=5, pady=5, sticky="nsew")
 
     # Method to clear the file path
     def clear_file(self):
@@ -652,6 +680,43 @@ class ReactorGUI:
             # Update total reactor and extended reactors labels
             self.total_reactors_label.config(text="0")  # Reset total reactors count
             self.extended_reactors_label.config(text="0")  # Reset extended reactors count
+            # --- Reset Current Reactor Calculations ---
+            self.current_reactors_path_var.set("")  # Clear file path
+            self.capacities_loaded = False  # Allow loading again
+            self.extension_applied = False  # Allow extension again
+
+            self.total_reactors_label.config(text="0")  # Reset display labels
+            self.extended_reactors_label.config(text="0")
+
+            self.total_reactors_loaded.set(0)
+            self.reactors_extended.set(0)
+
+            # Re-enable Load Capacities button
+            self.calculate_capacity_button.config(state="normal")
+
+            # Clear results display
+            self.results_text.config(state='normal')
+            self.results_text.delete('1.0', tk.END)
+            self.results_text.config(state='disabled')
+
+            # --- Reset Current Reactor Calculations ---
+            self.current_reactors_path_var.set("")  # Clear file path
+            self.capacities_loaded = False  # Allow loading again
+            self.extension_applied = False  # Allow extension again
+
+            self.total_reactors_label.config(text="0")  # Reset display labels
+            self.extended_reactors_label.config(text="0")
+
+            self.total_reactors_loaded.set(0)
+            self.reactors_extended.set(0)
+
+            # Re-enable Load Capacities button
+            self.calculate_capacity_button.config(state="normal")
+
+            # Clear results display
+            self.results_text.config(state='normal')
+            self.results_text.delete('1.0', tk.END)
+            self.results_text.config(state='disabled')
 
             # Show a confirmation message
             messagebox.showinfo("Data Cleared",
@@ -666,15 +731,19 @@ class ReactorGUI:
             messagebox.showerror("Error", "Please simulate future capacities before plotting job breakdown needs.")
             return
 
-        # Assuming workforce_needs is calculated and contains job needs per year for each scenario
-        combined_capacities = self.combine_current_and_future_capacities(self.current_total_capacities,
-                                                                         self.future_capacities_cum)
+        # Combine capacities
+        combined_capacities = self.combine_current_and_future_capacities(
+            self.current_total_capacities,
+            self.future_capacities_cum
+        )
 
+        # Create structure for job needs
         job_needs_by_category = {category: [] for category in self.job_breakdown.keys()}
 
-        # Calculate job needs using the workforce_needs data structure
+        # Compute workforce needs
         workforce_needs = self.calculate_workforce_needs(combined_capacities)
 
+        # Populate job needs per category
         for scenario, job_needs in workforce_needs.items():
             for year_index, total_jobs in enumerate(job_needs):
                 for category, percentage in self.job_breakdown.items():
@@ -684,62 +753,98 @@ class ReactorGUI:
         years = [2025, 2030, 2035, 2040, 2045, 2050]
         data_for_plot = []
 
+        num_years = len(years)
+        num_scenarios = len(workforce_needs)
+
         for year_index, year in enumerate(years):
             for category in self.job_breakdown.keys():
-                job_needs = [job_needs_by_category[category][i] for i in
-                             range(year_index, len(workforce_needs) * len(years), len(years))]
-                data_for_plot.extend([(year, category, job_need) for job_need in job_needs])
+                # Extract all scenario data for this category and year
+                job_needs = [
+                    job_needs_by_category[category][i]
+                    for i in range(year_index, num_scenarios * num_years, num_years)
+                ]
+                for j in job_needs:
+                    data_for_plot.append((year, category, j))
 
         df = pd.DataFrame(data_for_plot, columns=['Year', 'Category', 'Job Needs'])
 
-        categories = list(self.job_breakdown.keys())
+        # Sort categories by highest % first
+        categories = sorted(self.job_breakdown.keys(), key=lambda c: self.job_breakdown[c], reverse=True)
+
         num_categories = len(categories)
         plots_per_figure = 6
-        num_figures = (num_categories + plots_per_figure - 1) // plots_per_figure  # Calculate number of figures needed
+        num_figures = (num_categories + plots_per_figure - 1) // plots_per_figure
 
         for fig_idx in range(num_figures):
-            fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 10))  # Adjust figsize to make subplots smaller
-            axes = axes.flatten()  # Flatten the 2D array of axes for easy iteration
+
+            # -----------------------------
+            # Determine y-axis max for this figure only
+            # -----------------------------
+            max_value_for_fig = 0
+            start_idx = fig_idx * plots_per_figure
+            end_idx = min(start_idx + plots_per_figure, num_categories)
+
+            for category_idx in range(start_idx, end_idx):
+                category = categories[category_idx]
+                cat_vals = df[df['Category'] == category]["Job Needs"]
+                if not cat_vals.empty:
+                    max_value_for_fig = max(max_value_for_fig, cat_vals.max())
+
+            # -----------------------------
+            # Create the figure layout
+            # -----------------------------
+            fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 10))
+            axes = axes.flatten()
 
             for subplot_idx in range(plots_per_figure):
-                category_idx = fig_idx * plots_per_figure + subplot_idx
+                category_idx = start_idx + subplot_idx
                 if category_idx < num_categories:
                     category = categories[category_idx]
                     ax = axes[subplot_idx]
+
                     category_data = df[df['Category'] == category]
 
-                    # Extract job needs per year for the category
-                    data_by_year = [category_data[category_data['Year'] == year]['Job Needs'].tolist() for year in
-                                    years]
+                    # Extract job needs grouped by year
+                    data_by_year = [
+                        category_data[category_data['Year'] == year]["Job Needs"].tolist()
+                        for year in years
+                    ]
 
-                    # Plot the boxplot with custom colors
-                    box = ax.boxplot(data_by_year, labels=years, patch_artist=True, showmeans=True, meanline=True)
+                    # Draw boxplot
+                    box = ax.boxplot(
+                        data_by_year,
+                        labels=years,
+                        patch_artist=True,
+                        showmeans=True,
+                        meanline=True
+                    )
 
-                    # Set custom colors for each year
+                    # Set consistent Y scale within this figure
+                    ax.set_ylim(0, max_value_for_fig)
+
+                    # Color palette
                     colors = sns.color_palette("husl", len(years))
                     for patch, color in zip(box['boxes'], colors):
                         patch.set_facecolor(color)
 
-                    # Customize mean markers
+                    # Mean markers
                     for mean in box['means']:
                         mean.set(marker='o', color='red', markersize=6)
 
-                    # Set title, labels, and grid
+                    # Titles and labels
                     ax.set_title(category, fontsize=10)
-                    ax.set_xlabel('Year', fontsize=9)
-                    ax.set_ylabel('Job Needs', fontsize=9)
+                    ax.set_xlabel("Year", fontsize=9)
+                    ax.set_ylabel("Job Needs", fontsize=9)
                     ax.grid(True)
-
-                    # Set tick parameters to make them smaller
                     ax.tick_params(axis='both', which='major', labelsize=8)
 
-            # Remove any unused subplots
-            for idx in range(len(categories) - (fig_idx * plots_per_figure), len(axes)):
-                fig.delaxes(axes[idx])
+                else:
+                    # Remove unused subplots
+                    fig.delaxes(axes[subplot_idx])
 
             plt.tight_layout()
-            plt.subplots_adjust(top=0.85, hspace=0.3)
-            fig.suptitle(f'Job Needs Breakdown Across All Simulations - Part {fig_idx + 1}', fontsize=12)
+            plt.subplots_adjust(top=0.88)
+            fig.suptitle(f"Job Needs Breakdown Across All Simulations - Part {fig_idx + 1}", fontsize=12)
             plt.show()
 
     def calculate_workforce_needs(self, combined_capacities):
@@ -833,15 +938,15 @@ class ReactorGUI:
                 data_for_plot.append((reactor_type, percentage))
 
         # Convert data to a DataFrame for seaborn plotting
-        df = pd.DataFrame(data_for_plot, columns=['Reactor Type', 'Capacity Percentage'])
+        df = pd.DataFrame(data_for_plot, columns=['Reactor Identifier', 'Capacity Percentage'])
 
         # Plot a violin plot for each reactor type with a smaller figure size
         plt.figure(figsize=(10, 6))  # Decrease figure size
-        sns.violinplot(x='Reactor Type', y='Capacity Percentage', data=df, palette='Set2', inner='quartile')
+        sns.violinplot(x='Reactor Identifier', y='Capacity Percentage', data=df, palette='Set2', inner='quartile')
 
         # Larger font sizes for labels and ticks
-        plt.title('Reactor Type Capacity Percentage Across Simulations', fontsize=20)
-        plt.xlabel('Reactor Type', fontsize=18)
+        plt.title('Reactor Identifier Capacity Percentage Across Simulations', fontsize=20)
+        plt.xlabel('Reactor Identifier', fontsize=18)
         plt.ylabel('Capacity Percentage', fontsize=18)
         plt.grid(True)
 
@@ -1235,7 +1340,7 @@ class ReactorGUI:
     def setup_reactor_frame(self):
         # 1. Create the frame first
         self.reactor_frame = ttk.Frame(self.root, padding="10")
-        self.reactor_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        self.reactor_frame.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 
         # 2. Configure its columns (4 columns total)
         for col_index in range(4):
@@ -1245,7 +1350,7 @@ class ReactorGUI:
         self.future_reactors_label = ttk.Label(
             self.reactor_frame, text="Future Reactors", style="Bold.TLabel"
         )
-        self.future_reactors_label.grid(column=0, row=0, padx=5, pady=5, sticky="w")
+        self.future_reactors_label.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
         self.predefined_radio = ttk.Radiobutton(
             self.reactor_frame,
@@ -1254,7 +1359,7 @@ class ReactorGUI:
             value="predefined",
             command=self.update_reactor_entry_visibility
         )
-        self.predefined_radio.grid(column=1, row=0, padx=5, pady=5, sticky="w")
+        self.predefined_radio.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
 
         self.custom_radio = ttk.Radiobutton(
             self.reactor_frame,
@@ -1263,7 +1368,7 @@ class ReactorGUI:
             value="custom",
             command=self.update_reactor_entry_visibility
         )
-        self.custom_radio.grid(column=2, row=0, padx=5, pady=5, sticky="w")
+        self.custom_radio.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
 
         self.clear_button = ttk.Button(
             self.reactor_frame,
@@ -1271,18 +1376,19 @@ class ReactorGUI:
             command=self.clear_all_data,
             style="Bold.TButton"
         )
-        self.clear_button.grid(column=3, row=0, padx=5, pady=5, sticky="w")
+        self.clear_button.grid(column=3, row=0, padx=5, pady=5, sticky="nsew")
 
         # Call predefined and custom reactor sections
         self.setup_predefined_reactor_section()
         self.setup_custom_reactor_section()
 
+
         # Row 2: Capacity and Package
         ttk.Label(self.reactor_frame, text="Capacity (MW) per unit:").grid(
-            column=0, row=2, padx=5, pady=5, sticky="w"
+            column=0, row=2, padx=5, pady=5, sticky="nsew"
         )
         self.capacity_label = ttk.Label(self.reactor_frame, textvariable=self.capacity_var)
-        self.capacity_label.grid(column=1, row=2, padx=5, pady=5, sticky="w")
+        self.capacity_label.grid(column=1, row=2, padx=5, pady=5, sticky="nsew")
 
         ttk.Label(self.reactor_frame, text="Number of Units (Package):").grid(
             column=2, row=2, padx=5, pady=5, sticky="w"
@@ -1294,13 +1400,13 @@ class ReactorGUI:
             values=[str(i) for i in range(1, 21)],
             state="readonly"
         )
-        self.package_combobox.grid(column=3, row=2, padx=5, pady=5, sticky="ew")
+        self.package_combobox.grid(column=3, row=2, padx=5, pady=5, sticky="nsew")
         self.package_combobox.current(0)
 
         # Row 3: Mean Growth Rate and Coefficient Variation
         # --- For Mean Growth Rate: Create a sub-frame with label + question mark
         mg_frame = ttk.Frame(self.reactor_frame)
-        mg_frame.grid(column=0, row=3, padx=5, pady=5, sticky="w")
+        mg_frame.grid(column=0, row=3, padx=5, pady=5, sticky="nsew")
         mg_label = ttk.Label(mg_frame, text="Mean Growth Rate:")
         mg_label.pack(side="left")
         mg_qmark = ttk.Label(mg_frame, text=" ?", foreground="blue", cursor="question_arrow")
@@ -1311,11 +1417,11 @@ class ReactorGUI:
         self.mean_growth_rate_entry = ttk.Entry(
             self.reactor_frame, width=15, textvariable=self.mean_growth_rate_var
         )
-        self.mean_growth_rate_entry.grid(column=1, row=3, padx=5, pady=5, sticky="ew")
+        self.mean_growth_rate_entry.grid(column=1, row=3, padx=5, pady=5, sticky="nsew")
 
         # --- For Coefficient Variation: Create a sub-frame with label + question mark
         cv_frame = ttk.Frame(self.reactor_frame)
-        cv_frame.grid(column=2, row=3, padx=5, pady=5, sticky="w")
+        cv_frame.grid(column=2, row=3, padx=5, pady=5, sticky="nsew")
         cv_label = ttk.Label(cv_frame, text="Coef. Variation of Growth Rate:")
         cv_label.pack(side="left")
         cv_qmark = ttk.Label(cv_frame, text=" ?", foreground="blue", cursor="question_arrow")
@@ -1326,12 +1432,12 @@ class ReactorGUI:
         self.cov_growth_rate_entry = ttk.Entry(
             self.reactor_frame, width=15, textvariable=self.cov_growth_rate_var
         )
-        self.cov_growth_rate_entry.grid(column=3, row=3, padx=5, pady=5, sticky="ew")
+        self.cov_growth_rate_entry.grid(column=3, row=3, padx=5, pady=5, sticky="nsew")
 
         # Row 4: Growth Function and Growth Rate Distribution
         # --- Growth Function (already with a question mark)
         gf_frame = ttk.Frame(self.reactor_frame)
-        gf_frame.grid(column=0, row=4, padx=5, pady=5, sticky="w")
+        gf_frame.grid(column=0, row=4, padx=5, pady=5, sticky="nsew")
         gf_label = ttk.Label(gf_frame, text="Growth Function:")
         gf_label.pack(side="left")
         gf_qmark = ttk.Label(gf_frame, text=" ?", foreground="blue", cursor="question_arrow")
@@ -1348,12 +1454,12 @@ class ReactorGUI:
             values=self.reactor_growth_function_choices,
             state="readonly"
         )
-        self.reactor_growth_function_combobox.grid(column=1, row=4, padx=5, pady=5, sticky="ew")
+        self.reactor_growth_function_combobox.grid(column=1, row=4, padx=5, pady=5, sticky="nsew")
         self.reactor_growth_function_combobox.current(0)
 
         # --- Growth Rate Distribution with question mark
         grd_frame = ttk.Frame(self.reactor_frame)
-        grd_frame.grid(column=2, row=4, padx=5, pady=5, sticky="w")
+        grd_frame.grid(column=2, row=4, padx=5, pady=5, sticky="nsew")
         grd_label = ttk.Label(grd_frame, text="Growth Rate Distribution:")
         grd_label.pack(side="left")
         grd_qmark = ttk.Label(grd_frame, text=" ?", foreground="blue", cursor="question_arrow")
@@ -1370,7 +1476,7 @@ class ReactorGUI:
             values=self.growth_rate_distribution_choices,
             state="readonly"
         )
-        self.growth_rate_distribution_combobox.grid(column=3, row=4, padx=5, pady=5, sticky="ew")
+        self.growth_rate_distribution_combobox.grid(column=3, row=4, padx=5, pady=5, sticky="nsew")
         self.growth_rate_distribution_combobox.current(0)
 
         # Set Bold style for the Clear All button
@@ -1379,34 +1485,57 @@ class ReactorGUI:
 
     def setup_predefined_reactor_section(self):
         # This method sets up the predefined reactor section in the GUI
-        ttk.Label(self.reactor_frame, text="Reactor Type:").grid(column=0, row=1, padx=5, pady=5, sticky="w")
+        ttk.Label(self.reactor_frame, text="Reactor Identifier:").grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
+        # --- NEW Reactor Category Dropdown ---
+        ttk.Label(self.reactor_frame, text="Reactor Type:").grid(column=2, row=1, padx=5, pady=5, sticky="nsew")
+
+        self.reactor_category_var = StringVar()
+        self.reactor_category_combobox = ttk.Combobox(
+            self.reactor_frame,
+            width=15,
+            textvariable=self.reactor_category_var,
+            values= [
+            "High-Temperature Gas-Cooled Reactor",
+            "Sodium-Cooled Fast Reactor",
+            "Fluoride-Salt-Cooled High-Temperature Reactor",
+            "Gas-Cooled Fast Reactor",
+            "Pressurized Water Reactor",
+            "Fast Microreactor",
+            "Light Water Reactor"
+        ],
+            state="readonly"
+        )
+        self.reactor_category_combobox.grid(column=3, row=1, padx=5, pady=5, sticky="nsew")
+        self.reactor_category_combobox.current(0)
+
         self.reactor_type_combobox = ttk.Combobox(self.reactor_frame, width=25, textvariable=self.reactor_type_var,
                                                   state="readonly")
-        self.reactor_type_combobox.grid(column=1, row=1, padx=5, pady=5, sticky="ew")
+        self.reactor_type_combobox.grid(column=1, row=1, padx=5, pady=5, sticky="nsew")
         self.reactor_type_combobox['values'] = self.reactor_types  # This is the predefined list
         self.reactor_type_combobox.bind("<<ComboboxSelected>>", self.update_capacity)
+        self.reactor_type_combobox.bind("<<ComboboxSelected>>", self.on_reactor_type_selected)
 
-        ttk.Label(self.reactor_frame, text="Capacity (MW) per unit:").grid(column=0, row=2, padx=5, pady=5, sticky="w")
+        ttk.Label(self.reactor_frame, text="Capacity (MW) per unit:").grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
         self.capacity_label = ttk.Label(self.reactor_frame, textvariable=self.capacity_var)
         self.capacity_label.grid(column=1, row=2, padx=5, pady=5, sticky="w")
 
         ttk.Label(self.reactor_frame, text="Number of Units (Package):").grid(column=2, row=2, padx=5, pady=5,
-                                                                              sticky="w")
+                                                                              sticky="nsew")
         self.package_combobox = ttk.Combobox(self.reactor_frame, width=10, textvariable=self.package_var,
                                              values=[str(i) for i in range(1, 21)], state="readonly")
-        self.package_combobox.grid(column=3, row=2, padx=5, pady=5, sticky="ew")
+        self.package_combobox.grid(column=3, row=2, padx=5, pady=5, sticky="nsew")
         self.package_combobox.current(0)
 
     def setup_custom_reactor_section(self):
-        self.custom_reactor_type_label = ttk.Label(self.reactor_frame, text="Custom Reactor Type:")
-        self.custom_reactor_type_label.grid(column=0, row=3, padx=5, pady=5, sticky="w")
+        self.custom_reactor_type_label = ttk.Label(self.reactor_frame, text="Custom Reactor Identifier:")
+        self.custom_reactor_type_label.grid(column=0, row=3, padx=5, pady=5, sticky="nsew")
         self.custom_reactor_type_entry = ttk.Entry(self.reactor_frame, width=25)
-        self.custom_reactor_type_entry.grid(column=1, row=3, padx=5, pady=5, sticky="ew")
+        self.custom_reactor_type_entry.grid(column=1, row=3, padx=5, pady=5, sticky="nsew")
 
         self.custom_capacity_label = ttk.Label(self.reactor_frame, text="Custom Capacity (MW):")
-        self.custom_capacity_label.grid(column=0, row=4, padx=5, pady=5, sticky="w")
+        self.custom_capacity_label.grid(column=0, row=4, padx=5, pady=5, sticky="nsew")
         self.custom_capacity_entry = ttk.Entry(self.reactor_frame, width=10)
-        self.custom_capacity_entry.grid(column=1, row=4, padx=5, pady=5, sticky="ew")
+        self.custom_capacity_entry.grid(column=1, row=4, padx=5, pady=5, sticky="nsew")
 
         # Hide custom reactor section initially
         self.custom_reactor_type_label.grid_remove()
@@ -1423,30 +1552,52 @@ class ReactorGUI:
         else:
             self.capacity_var.set('')  # Clear the capacity display if the reactor is not in the list
 
+    def on_reactor_type_selected(self, event=None):
+        self.update_capacity()
+        self.update_category_on_type_selection()
+
+
+    def update_category_on_type_selection(self, event=None):
+        selected_type = self.reactor_type_var.get()
+        category = self.reactor_type_to_category.get(selected_type, "")
+        self.reactor_category_var.set(category)
+
+
     def update_reactor_entry_visibility(self):
         selection = self.reactor_selection_var.get()
         if selection == "predefined":
-            # Show the predefined reactor section
-            self.reactor_type_combobox.grid(column=1, row=1, padx=5, pady=5, sticky="ew")
-            self.capacity_label.grid(column=1, row=2, padx=5, pady=5, sticky="w")
-            # Hide the custom reactor section
+            # Show predefined reactor section
+            self.reactor_type_combobox.grid(column=1, row=1, padx=5, pady=5, sticky="nsew")
+            self.capacity_label.grid(column=1, row=2, padx=5, pady=5, sticky="nsew")
+
+            self.reactor_category_combobox.grid(column=3, row=1, padx=5, pady=5, sticky="nsew")
+            self.reactor_category_entry.grid_remove()
+
+            # Hide custom reactor section
             self.custom_reactor_type_label.grid_remove()
             self.custom_reactor_type_entry.grid_remove()
             self.custom_capacity_label.grid_remove()
             self.custom_capacity_entry.grid_remove()
-            # Clear the custom reactor type entry
+
             self.custom_reactor_type_entry.delete(0, END)
             self.custom_capacity_entry.delete(0, END)
+
         elif selection == "custom":
-            # Show the custom reactor section
-            self.custom_reactor_type_label.grid(column=0, row=1, padx=5, pady=5, sticky="w")
-            self.custom_reactor_type_entry.grid(column=1, row=1, padx=5, pady=5, sticky="ew")
-            self.custom_capacity_label.grid(column=0, row=2, padx=5, pady=5, sticky="w")
-            self.custom_capacity_entry.grid(column=1, row=2, padx=5, pady=5, sticky="ew")
-            # Hide the predefined reactor section
+            # Show custom reactor section
+            self.reactor_category_var.set("")  # clears Option 1 when custom selected
+            self.custom_reactor_type_label.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
+            self.custom_reactor_type_entry.grid(column=1, row=1, padx=5, pady=5, sticky="nsew")
+            self.custom_capacity_label.grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
+            self.custom_capacity_entry.grid(column=1, row=2, padx=5, pady=5, sticky="nsew")
+
+            # Hide predefined dropdowns
             self.reactor_type_combobox.grid_remove()
             self.capacity_label.grid_remove()
-            # Clear the predefined capacity
+
+            # 🔁 Hide category dropdown and show text entry
+            self.reactor_category_combobox.grid(column=3, row=1, padx=5, pady=5, sticky="nsew")
+
+            # Clear values
             self.capacity_var.set('')
 
     def edit_reactor(self):
@@ -1473,7 +1624,7 @@ class ReactorGUI:
 
     def setup_list_frame(self):
         self.list_frame = ttk.Frame(self.root, padding="10")
-        self.list_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        self.list_frame.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
         # Define the bold style for the label
         style = ttk.Style()
@@ -1481,30 +1632,32 @@ class ReactorGUI:
 
         # Add a label for "Display Results"
         display_label = tk.Label(self.list_frame, text="Added Future Reactors:", font=("Arial", 10, "bold"))
-        display_label.grid(row=0, column=0, sticky="w", pady=(0, 5))  # Add bottom padding to separate from text box
+        display_label.grid(row=0, column=0, sticky="nsew", pady=(0, 5))  # Add bottom padding to separate from text box
 
         # Add the Edit button to the right of the Display Results label
         self.edit_button = ttk.Button(self.list_frame, text="Delete Reactor", command=self.edit_reactor, width=14)
-        self.edit_button.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        self.edit_button.grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
 
         # Add the Add Reactor button next to the Delete button
         self.add_reactor_button = ttk.Button(self.list_frame, text="Add Reactor", command=self.add_reactor, width=14)
-        self.add_reactor_button.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        self.add_reactor_button.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
         # Create a Treeview widget to display reactors as a table
-        columns = ("Reactor Type", "Capacity (MW)", "Growth Rate", "Package", "Growth Function")
+        columns = ("Reactor Identifier", "Reactor Type", "Capacity (MW)", "Growth Rate", "Package", "Growth Function")
         self.reactor_table = ttk.Treeview(self.list_frame, columns=columns, show='headings', height=10,
                                           selectmode='extended')
 
         # Define column headings
+        self.reactor_table.heading("Reactor Identifier", text="Reactor Identifier")
         self.reactor_table.heading("Reactor Type", text="Reactor Type")
+        self.reactor_table.column("Reactor Type", width=150, anchor="center")
         self.reactor_table.heading("Capacity (MW)", text="Capacity (MW)")
         self.reactor_table.heading("Growth Rate", text="Growth Rate")
         self.reactor_table.heading("Package", text="Package")
         self.reactor_table.heading("Growth Function", text="Growth Function")
 
         # Define column widths
-        self.reactor_table.column("Reactor Type", width=150, anchor="center")
+        self.reactor_table.column("Reactor Identifier", width=150, anchor="center")
         self.reactor_table.column("Capacity (MW)", width=100, anchor="center")
         self.reactor_table.column("Growth Rate", width=100, anchor="center")
         self.reactor_table.column("Package", width=80, anchor="center")
@@ -1515,15 +1668,17 @@ class ReactorGUI:
         # Add vertical scrollbar for Treeview
         scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.reactor_table.yview)
         self.reactor_table.configure(yscrollcommand=scrollbar.set)
-        scrollbar.grid(row=1, column=3, sticky='ns')
+        scrollbar.grid(row=1, column=3, sticky='nsew')
 
         # Configure grid resizing for the list frame
         self.list_frame.columnconfigure(0, weight=1)
-        self.list_frame.rowconfigure(1, weight=1)
+        self.list_frame.columnconfigure(1, weight=1)
+        self.list_frame.columnconfigure(2, weight=1)
+        self.list_frame.columnconfigure(3, weight=1)  # scrollbar column
 
     def setup_goals_frame(self):
         self.goals_frame = ttk.Frame(self.root, padding="10")
-        self.goals_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        self.goals_frame.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 
         # Define a custom style for the button
         style = ttk.Style()
@@ -1543,62 +1698,62 @@ class ReactorGUI:
                                      command=lambda: messagebox.showinfo("Future Mean Distribution",
                                                                          "NEI is predicting that there would be 90,000 MW added by the end of 2050."),
                                      width=25, style="Custom.TButton")
-        self.new_button.grid(column=0, row=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.new_button.grid(column=0, row=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         ttk.Label(self.goals_frame, text="Total Mean Future Capacity (MW):").grid(column=0, row=1, padx=5, pady=5,
-                                                                                  sticky="w")
+                                                                                  sticky="nsew")
         self.total_capacity_goal_var = IntVar(value=90000)
 
         self.total_capacity_goal_entry = ttk.Entry(self.goals_frame, width=15,
                                                    textvariable=self.total_capacity_goal_var)
-        self.total_capacity_goal_entry.grid(column=1, row=1, padx=2, pady=2, sticky="ew")
+        self.total_capacity_goal_entry.grid(column=1, row=1, padx=2, pady=2, sticky="nsew")
 
         self.plot_future_capacity_button = ttk.Button(self.goals_frame, text="Plot Future Capacity Distribution",
                                                       command=self.plot_future_capacity_distribution, width=35,
                                                       style="Custom.TButton")
         self.plot_future_capacity_button.grid(column=2, row=0, padx=5, pady=5, sticky="ew")
-        ttk.Label(self.goals_frame, text="Coef. Variation of Future Capacity:").grid(column=2, row=1, padx=5, pady=5, sticky="w")
+        ttk.Label(self.goals_frame, text="Coef. Variation of Future Capacity:").grid(column=2, row=1, padx=5, pady=5, sticky="nsew")
         self.coefficient_variation_var = DoubleVar(value=0.2)
         self.coefficient_variation_entry = ttk.Entry(self.goals_frame, width=10,
                                                      textvariable=self.coefficient_variation_var)
-        self.coefficient_variation_entry.grid(column=3, row=1, padx=2, pady=2, sticky="w")
+        self.coefficient_variation_entry.grid(column=3, row=1, padx=2, pady=2, sticky="nsew")
 
         ttk.Label(self.goals_frame, text="Future Capacity Distribution:").grid(column=0, row=2, padx=5, pady=5,
-                                                                               sticky="w")
+                                                                               sticky="nsew")
         self.capacity_distribution_var = StringVar()
-        self.capacity_distribution_choices = ['Normal', 'Lognormal']
+        self.capacity_distribution_choices = ['Normal']
         self.capacity_distribution_combobox = ttk.Combobox(self.goals_frame, width=15,
                                                            textvariable=self.capacity_distribution_var,
                                                            values=self.capacity_distribution_choices, state="readonly")
-        self.capacity_distribution_combobox.grid(column=1, row=2, padx=5, pady=5, sticky="ew")
+        self.capacity_distribution_combobox.grid(column=1, row=2, padx=5, pady=5, sticky="nsew")
         self.capacity_distribution_combobox.current(0)
 
-        ttk.Label(self.goals_frame, text="Number of Simulations:").grid(column=2, row=2, padx=5, pady=5, sticky="w")
+        ttk.Label(self.goals_frame, text="Number of Simulations:").grid(column=2, row=2, padx=5, pady=5, sticky="nsew")
         self.num_simulations_var = IntVar(value=1000)
         self.num_simulations_entry = ttk.Entry(self.goals_frame, width=10, textvariable=self.num_simulations_var)
-        self.num_simulations_entry.grid(column=3, row=2, padx=5, pady=5, sticky="w")
+        self.num_simulations_entry.grid(column=3, row=2, padx=5, pady=5, sticky="nsew")
 
-        ttk.Label(self.goals_frame, text="Deployment Years:").grid(column=0, row=3, padx=5, pady=5, sticky="w")
+        ttk.Label(self.goals_frame, text="Deployment Years:").grid(column=0, row=3, padx=5, pady=5, sticky="nsew")
         self.specific_years_var = StringVar()
         self.specific_years_combobox = ttk.Combobox(self.goals_frame, width=35, textvariable=self.specific_years_var,
                                                     state="readonly")
         self.specific_years_combobox['values'] = ['2025, 2030, 2035, 2040, 2045, 2050']
-        self.specific_years_combobox.grid(column=1, row=3, columnspan=3, padx=5, pady=5, sticky="ew")
+        self.specific_years_combobox.grid(column=1, row=3, columnspan=3, padx=5, pady=5, sticky="nsew")
         self.specific_years_combobox.current(0)
 
         self.add_goals_button = ttk.Button(self.goals_frame, text="Export and Simulate Future Reactors",
                                            command=self.set_goals, width=25)
-        self.add_goals_button.grid(column=0, row=4, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.add_goals_button.grid(column=0, row=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.capacity_breakdown_button = ttk.Button(self.goals_frame, text="Capacity Breakdown Future Reactors",
                                                     command=self.capacity_breakdown, width=40)
-        self.capacity_breakdown_button.grid(column=2, row=4, columnspan=2, padx=5, pady=5, sticky="w")
+        self.capacity_breakdown_button.grid(column=2, row=4, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         # New button to plot capacity added from future reactors
         self.plot_future_reactor_capacity_button = ttk.Button(self.goals_frame,
                                                               text="Plot Future Capacity Reactors",
                                                               command=self.plot_future_reactor_capacity, width=40)
-        self.plot_future_reactor_capacity_button.grid(column=2, row=5, columnspan=2, padx=5, pady=5, sticky="w")
+        self.plot_future_reactor_capacity_button.grid(column=2, row=5, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     def plot_future_capacity_distribution(self):
         # Get the mean and coefficient of variation
@@ -1666,24 +1821,28 @@ class ReactorGUI:
         plt.show()
 
     def add_reactor(self):
-        # Get the reactor type (predefined or custom)
+        # Determine the reactor type (either selected from dropdown or entered manually)
         reactor_type = self.reactor_type_var.get() if self.reactor_type_var.get() else self.custom_reactor_type_entry.get()
 
-        # Get the capacity (MW)
+        # Get the capacity value from either dropdown or entry
         capacity = self.capacity_var.get() if self.capacity_var.get() else self.custom_capacity_entry.get()
 
-        # Remove ' MW' from capacity before converting to float
-        if capacity.endswith(' MW'):
+        # Get the reactor category (from dropdown, always present for both predefined and custom)
+        category = self.reactor_category_var.get()
+
+        # Clean up capacity input (remove ' MW' if present)
+        if capacity and capacity.endswith(' MW'):
             capacity = capacity[:-3]
 
+        # Validate reactor type and capacity inputs
         if not reactor_type or not capacity:
             messagebox.showerror("Invalid Input",
                                  "Please select a reactor type or enter a custom one, and specify its capacity.")
             return
 
         try:
-            capacity = float(capacity)  # Convert the capacity to float
-            package = int(self.package_var.get())  # Number of units for the reactor
+            capacity = float(capacity)
+            package = int(self.package_var.get())
             if package <= 0:
                 raise ValueError("Number of units must be greater than zero.")
         except ValueError:
@@ -1695,26 +1854,35 @@ class ReactorGUI:
         mean_growth_rate = self.mean_growth_rate_var.get()
         cov_growth_rate = self.cov_growth_rate_var.get()
 
-        # Add the reactor to the internal lists
+        # 👉 Store custom reactor type → category mapping
+        if reactor_type not in self.reactor_type_to_category:
+            self.reactor_type_to_category[reactor_type] = category
+
+        # Store the reactor info
         reactor_info = (reactor_type, capacity, mean_growth_rate, package)
         self.reactors.append(reactor_info)
 
-        # Use the growth function selected by the user
+        # Store growth function (selected per reactor)
         growth_function_input = self.reactor_growth_function_var.get()
-        self.growth_functions.append(growth_function_input)  # Store the growth function separately
+        self.growth_functions.append(growth_function_input)
 
-        # Insert data into the Treeview (table)
+        # Insert reactor into Treeview table
         self.reactor_table.insert("", "end", values=(
-        reactor_type, f"{capacity} MW", f"Mean: {mean_growth_rate}, CoV: {cov_growth_rate}", package,
-        growth_function_input))
+            reactor_type,
+            category,
+            f"{capacity} MW",
+            f"Mean: {mean_growth_rate}, CoV: {cov_growth_rate}",
+            package,
+            growth_function_input
+        ))
 
-        # Clear the inputs after adding the reactor
+        # Clear input fields after adding
         self.reactor_type_combobox.set('')
-        self.custom_reactor_type_entry.delete(0, END)  # Clear the custom reactor type entry
+        self.custom_reactor_type_entry.delete(0, END)
         self.capacity_var.set('')
-        self.custom_capacity_entry.delete(0, END)  # Clear the custom capacity entry
-        self.package_combobox.set('1')  # Reset to default value
-        self.reactor_growth_function_combobox.current(0)  # Reset growth function
+        self.custom_capacity_entry.delete(0, END)
+        self.package_combobox.set('1')
+        self.reactor_growth_function_combobox.current(0)
 
     def gather_simulation_data(self):
         reactor_types = []
@@ -1789,6 +1957,29 @@ class ReactorGUI:
                 years_difference,
                 mean_growth_rate, cov_growth_rate  # Pass user-provided values
             )
+            # Step 1: Make scaled_values cumulative over years
+            cumulative_scaled_array = np.cumsum(scaled_values, axis=1)
+
+            # Step 2: Create nested dictionary: scenario -> year -> reactor type -> capacity
+            self.future_capacity_by_type_cumulative = {}
+            for sim_idx in range(cumulative_scaled_array.shape[0]):
+                scenario_name = f"Scenario {sim_idx + 1}"
+                self.future_capacity_by_type_cumulative[scenario_name] = {}
+
+                for year_idx, year in enumerate(simulation_data["specific_years"]):
+                    self.future_capacity_by_type_cumulative[scenario_name][year] = {}
+
+                    for reactor_idx, reactor_type in enumerate(simulation_data["reactor_types"]):
+                        capacity = float(cumulative_scaled_array[sim_idx, year_idx, reactor_idx])
+                        # Get category for the current reactor type
+                        category = self.reactor_type_to_category.get(reactor_type, "Custom or Unknown")
+
+                        # Initialize category dict if not already present
+                        if category not in self.future_capacity_by_type_cumulative[scenario_name][year]:
+                            self.future_capacity_by_type_cumulative[scenario_name][year][category] = {}
+
+                        # Store capacity under category -> reactor_type
+                        self.future_capacity_by_type_cumulative[scenario_name][year][category][reactor_type] = capacity
 
             # Calculate the cumulative total capacity over time
             self.future_capacities_cum = calculate_cumulative_total_capacity(scaled_values)

@@ -120,7 +120,7 @@ class WelcomePage:
         contact_button.pack(pady=(10, 0))
 
     def open_contact_form(self):
-        messagebox.showinfo("Contact", "Please contact us at smarandi@umd.edu")
+        messagebox.showinfo("Contact", "Please contact us at Saman Marandi at: smarandi@umd.edu or Kaveh Faraji at kfaraji@umd.edu")
 
     def add_version_info(self):
         version_label = ttk.Label(self.frame, text="Version 1.0", font=("Arial", 10, "italic"), style="Body.TLabel")
@@ -139,11 +139,12 @@ class WelcomePage:
         manual_button.pack(pady=(10, 0))
 
     def open_user_manual(self):
-        filepath = "path_to_user_manual.pdf"
-        if os.path.exists(filepath):
-            os.system(f'start {filepath}')
-        else:
-            messagebox.showerror("Error", "User manual not found.")
+        placeholder_link = "https://example.com/user-manual"
+        messagebox.showinfo(
+            "User Manual",
+            f"The user manual is not yet available.\n\n"
+            f"📘 Placeholder Link:\n{placeholder_link}"
+        )
 
     def start_app(self):
         self.frame.destroy()
